@@ -1,37 +1,63 @@
-/*
- * Functions
- */
+/*************
+ * Variables *
+ *************/
 
-function move()
-{
-    x1 += tx1;
-    y1 += ty1;
+var ctxWidth          = ctx[0].canvas.width;  // width of the whole canvas
+var ctxHeight         = ctx[0].canvas.height; // height of the whole canvas
+var gameRegionSize    = 600;                  // the side length of game region
+var gameRegionGapSize = 10;                   // size of the gap between game region and canvas (to place the boards)
+var boardThickness    = 8;                    // thickness of the boards
 
-    x2 += tx2;
-    y2 += ty2;
+// status of the game
+//   0: game not started yet
+//   1: game is running
+//   2: you are dead!
+var gameStatus = 0;
 
-    x3 += tx3;
-    y3 += ty3;
+var ball = {
+    x: 0,
+    y: 0
+};
+var boards = [{
+    id = clientID,
+    position = gameBoardSize / 2,
+    size = 
+}];
+
+/*************
+ * Functions *
+ *************/
+
+//
+// action when key pressed
+//
+// use this function to get all the key strokes, the code can be the following:
+// right, left, up, down, a, b, c, ... , z, 1, 2, ... , 9,  (a space for space bar)
+//
+
+function KeyPress(code) {
+    switch (code) {
+        case "left":
+            // do something
+            break;
+
+        case "right":
+            // do something
+            break;
+
+        default:
+            // do nothing
+    }
 }
 
-function changeMessage()
-{
-    m++;
-    window.broadcast({
-        id: clientID,
-        data: m
-    });
-}
+//
+// action when a message is coming
+//
+// recieve messages from other clients in this function, to send messages use server.broadcast(msg)
+// note that you will also recieve the message you broadcasted
+//
 
-function keyPress(code) {
-    //use this function to get all the key strokes, the code can be the following:
-    // right, left, up, down, a, b, c, ... , z, 1, 2, ... , 9,  (a space for space bar)
-    changeMessage();
-}
-
-function recieve(msg) {
-    //recieve messages from other clients in this function, to send messages use server.broadcast(msg)
-    //note that you will also recieve the message you broadcasted
+function Recieve(msg) {
     if (msg.id != clientID)
     {
         r = msg.data;
@@ -39,102 +65,98 @@ function recieve(msg) {
     }
 }
 
+//
+// several functions to update information with the data from server
+//
+
+function UpdateBallInformation(x, y) {
+    ball.x = x;
+    ball.y = y;
+}
+
+function UpdateBoardInformation(id, position, size) {
+    // no need to update local board position
+    if (id != clientID) {
+        for (board in boards) {
+            if (boards[board] != null && boards[board].id == id) {
+                boards[board].position = position;
+                boards[board].size = size;
+                break;
+            }
+        }
+    }
+}
+
+//
+// request a new frame
+//
+
 var NewFrame = function() {
     if (window.requestAnimationFrame) {
-        window.requestAnimationFrame(renderingLoop);
+        window.requestAnimationFrame(RenderingLoop);
     }
     else if (window.msRequestAnimationFrame) {
-        window.msRequestAnimationFrame(renderingLoop);
+        window.msRequestAnimationFrame(RenderingLoop);
     }
     else if (window.webkitRequestAnimationFrame) {
-        window.webkitRequestAnimationFrame(renderingLoop);
+        window.webkitRequestAnimationFrame(RenderingLoop);
     }
     else if (window.mozRequestAnimationFrame) {
-        window.mozRequestAnimationFrame(renderingLoop);
+        window.mozRequestAnimationFrame(RenderingLoop);
     }
     else if (window.oRequestAnimationFrame) {
-        window.oRequestAnimationFrame(renderingLoop);
+        window.oRequestAnimationFrame(RenderingLoop);
     }
     else {
         NewFrame = function() {};
-        window.setInterval(renderingLoop, 16.7);
+        window.setInterval(RenderingLoop, 16.7);
     }
 }
 
-var renderingLoop = function() {
+//
+// rendering loop
+//
+
+var RenderingLoop = function() {
+
+    // clear the whole panel
     ctx.clearRect(0, 0, ctxWidth, ctxHeight);
-    
-    // ctx.beginPath();
-    // ctx.arc(x1,y1,10,0,Math.PI*2,true);
-    // ctx.fill();
 
-    // ctx.beginPath();
-    // ctx.arc(x2,y2,10,0,Math.PI*2,true);
-    // ctx.fill();
+    // select canvas
+    currentCanvas = currentCanvas ^ 1;
+    allCanvas[currentCanvas].visible = true;
+    allCanvas[currentCanvas ^ 1].visible = false;
 
-    // ctx.beginPath();
-    // ctx.arc(x3,y3,10,0,Math.PI*2,true);
-    // ctx.fill();
+    // draw on the background canvas
+    var backgroundCtx = ctx[currentCanvas ^ 1];
+    switch (gameStatus) {
 
-    // ctx.drawImage(p1, x1, y1);
-    // ctx.drawImage(p2, x2, y2);
-    // ctx.drawImage(p3, x3, y3);
+        // game not started yet
+        case 0:
 
-    ctx.fillStyle = "blue"; 
-    ctx.font="24pt Helvetica"; 
-    ctx.fillText(m, 10, 30); 
-    
-    ctx.fillStyle = "red"; 
-    ctx.font="24pt Helvetica"; 
-    ctx.fillText(r, 100, 30); 
+            break;
 
-    ctx.fillStyle = "black"; 
-    ctx.font="24pt Helvetica"; 
-    ctx.fillText(clientID, 200, 30);
+        // game is running
+        case 1:
 
-    ctx.fillStyle = "black";
-    ctx.font="12pt Helvetica";
-    ctx.fillText(receiveText, 10, 100);
+            break;
 
+        // you are dead
+        case 2:
+
+            break;
+
+        // must be something wrong if you get here
+        default:
+            // do nothing
+    }
+
+    // request a new frame
     NewFrame();
 }
 
-/*
- * Variables
- */
+/*************
+ * Main code *
+ *************/
 
-var ctxWidth = ctx.canvas.width;
-var ctxHeight = ctx.canvas.height;
-
-// var x1 = 20;
-// var y1 = 20;
-// var tx1 = 5;
-// var ty1 = 5;
-
-// var x2 = 980;
-// var y2 = 580;
-// var tx2 = -10;
-// var ty2 = -3;
-
-// var x3 = 20;
-// var y3 = 580;
-// var tx3 = 15;
-// var ty3 = 0;
-
-// var p1 = new Image();
-// var p2 = new Image();
-// var p3 = new Image();
-// p1.src = "1.png";
-// p2.src = "2.png";
-// p3.src = "3.png";
-
-m = 0;
-r = 0;
-receiveText = "No data received.";
-
-/*
- * Main code
- */
-
-//setInterval(move, 50);
-renderingLoop();
+NewFrame(renderingLoop);
