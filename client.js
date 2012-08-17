@@ -1,36 +1,68 @@
-/**
- * Just the minimum code you want to start with, play around with draw and the ctx to draw interesting stuff first,
- * then add the keyboard input from keyPress, use recieve and server.broadcast to add to talk with other players
- * playing the same game and add multiplayer functionality,
+/*
+ * Functions
  */
-x1 = 20;
-y1 = 20;
-tx1 = 5;
-ty1 = 5;
 
-x2 = 980;
-y2 = 580;
-tx2 = -10;
-ty2 = -3;
+function move()
+{
+    x1 += tx1;
+    y1 += ty1;
 
-x3 = 20;
-y3 = 580;
-tx3 = 15;
-ty3 = 0;
+    x2 += tx2;
+    y2 += ty2;
 
-var p1 = new Image();
-var p2 = new Image();
-var p3 = new Image();
-p1.src = "1.png";
-p2.src = "2.png";
-p3.src = "3.png";
+    x3 += tx3;
+    y3 += ty3;
+}
 
-m = 0;
-r = 0;
-receiveText = "No data received.";
+function changeMessage()
+{
+    m++;
+    window.broadcast({
+        id: clientID,
+        data: m
+    });
+}
 
-function draw() {
-    ctx.clearRect(0,0,1000,600);
+function keyPress(code) {
+    //use this function to get all the key strokes, the code can be the following:
+    // right, left, up, down, a, b, c, ... , z, 1, 2, ... , 9,  (a space for space bar)
+    changeMessage();
+}
+
+function recieve(msg) {
+    //recieve messages from other clients in this function, to send messages use server.broadcast(msg)
+    //note that you will also recieve the message you broadcasted
+    if (msg.id != clientID)
+    {
+        r = msg.data;
+        receiveText = "Latest data received from client id: " + msg.id;
+    }
+}
+
+var NewFrame = function() {
+    if (window.requestAnimationFrame) {
+        window.requestAnimationFrame(renderingLoop);
+    }
+    else if (window.msRequestAnimationFrame) {
+        window.msRequestAnimationFrame(renderingLoop);
+    }
+    else if (window.webkitRequestAnimationFrame) {
+        window.webkitRequestAnimationFrame(renderingLoop);
+    }
+    else if (window.mozRequestAnimationFrame) {
+        window.mozRequestAnimationFrame(renderingLoop);
+    }
+    else if (window.oRequestAnimationFrame) {
+        window.oRequestAnimationFrame(renderingLoop);
+    }
+    else {
+        NewFrame = function() {};
+        window.setInterval(renderingLoop, 16.7);
+    }
+}
+
+var renderingLoop = function() {
+    ctx.clearRect(0, 0, ctxWidth, ctxHeight);
     
     // ctx.beginPath();
     // ctx.arc(x1,y1,10,0,Math.PI*2,true);
@@ -64,56 +96,45 @@ function draw() {
     ctx.font="12pt Helvetica";
     ctx.fillText(receiveText, 10, 100);
 
-    if (window.requestAnimationFrame)
-        window.requestAnimationFrame(draw);
-    else if (window.msRequestAnimationFrame)
-        window.msRequestAnimationFrame(draw);
-    else if (window.webkitRequestAnimationFrame)
-        window.webkitRequestAnimationFrame(draw);
-    else if (window.mozRequestAnimationFrame)
-        window.mozRequestAnimationFrame(draw);
-    else if (window.oRequestAnimationFrame)
-        window.oRequestAnimationFrame(draw);
+    NewFrame();
 }
 
-function move()
-{
-    x1 += tx1;
-    y1 += ty1;
+/*
+ * Variables
+ */
 
-    x2 += tx2;
-    y2 += ty2;
+var ctxWidth = ctx.canvas.width;
+var ctxHeight = ctx.canvas.height;
 
-    x3 += tx3;
-    y3 += ty3;
-}
+// var x1 = 20;
+// var y1 = 20;
+// var tx1 = 5;
+// var ty1 = 5;
 
-setInterval(move, 50);
-//setInterval(changeMessage, 1000);
+// var x2 = 980;
+// var y2 = 580;
+// var tx2 = -10;
+// var ty2 = -3;
 
-draw();
-//setInterval(draw, 20); //run draw every 60 ms
+// var x3 = 20;
+// var y3 = 580;
+// var tx3 = 15;
+// var ty3 = 0;
 
-function changeMessage()
-{
-    m++;
-    window.broadcast({
-        id: clientID,
-        data: m
-    });
-}
+// var p1 = new Image();
+// var p2 = new Image();
+// var p3 = new Image();
+// p1.src = "1.png";
+// p2.src = "2.png";
+// p3.src = "3.png";
 
-function keyPress(code) {
-    //use this function to get all the key strokes, the code can be the following:
-    // right, left, up, down, a, b, c, ... , z, 1, 2, ... , 9,  (a space for space bar)
-    changeMessage();
-}
-function recieve(msg) {
-    //recieve messages from other clients in this function, to send messages use server.broadcast(msg)
-    //note that you will also recieve the message you broadcasted
-    if (msg.id != clientID)
-    {
-        r = msg.data;
-        receiveText = "Latest data received from client id: " + msg.id;
-    }
-}
+m = 0;
+r = 0;
+receiveText = "No data received.";
+
+/*
+ * Main code
+ */
+
+//setInterval(move, 50);
+renderingLoop();
