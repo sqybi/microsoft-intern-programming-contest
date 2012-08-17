@@ -3,10 +3,17 @@
     <head>
         <title>Breakout^4!</title>
         <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+        <style>
+            canvas {
+                position: absolute;
+                left: 0px;
+                top: 0px;
+            }
+        </style>
     </head>
     <body>
-        <canvas width="1020" height="620"></canvas>
-        <canvas width="1020" height="620"></canvas>
+        <canvas width="975" height="624" visible="true"></canvas>
+        <canvas width="975" height="624" visible="false"></canvas>
     </body>
     <script type="text/javascript" src="jquery.js"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -19,12 +26,10 @@
             return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
         }
         var clientID = guidGenerator(),
-             allCanvas = document.getElementsByTagName('canvas'),
-             width = canvas.width,
-             height = canvas.height,
-             ctx = [allCanvas[0].getContext('2d'), allCanvas[1].getContext('2d')],
-             currentCanvas = 0,
-             server = window.now || {};
+            allCanvas = document.getElementsByTagName('canvas'),
+            ctx = [allCanvas[0].getContext('2d'), allCanvas[1].getContext('2d')],
+            currentCanvas = 0,
+            server = window.now || {};
 
         try {
             var socket = io.connect('http://localhost');

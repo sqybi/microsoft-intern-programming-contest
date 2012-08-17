@@ -15,14 +15,31 @@ var boardThickness    = 8;                    // thickness of the boards
 var gameStatus = 0;
 
 var ball = {
-    x: 0,
-    y: 0
+    x: gameRegionSize / 2,
+    y: gameRegionSize / 2
 };
-var boards = [{
-    id = clientID,
-    position = gameBoardSize / 2,
-    size = 
-}];
+var boards = [
+    {
+        id:       clientID,
+        position: gameRegionSize / 2,
+        size:     40
+    },
+    {
+        id:       "",
+        position: gameRegionSize / 2,
+        size:     gameRegionSize
+    },
+    {
+        id:       "",
+        position: gameRegionSize / 2,
+        size:     gameRegionSize
+    },
+    {
+        id:       "",
+        position: gameRegionSize / 2,
+        size:     gameRegionSize
+    }
+];
 
 /*************
  * Functions *
@@ -119,9 +136,6 @@ var NewFrame = function() {
 
 var RenderingLoop = function() {
 
-    // clear the whole panel
-    ctx.clearRect(0, 0, ctxWidth, ctxHeight);
-
     // select canvas
     currentCanvas = currentCanvas ^ 1;
     allCanvas[currentCanvas].visible = true;
@@ -129,15 +143,32 @@ var RenderingLoop = function() {
 
     // draw on the background canvas
     var backgroundCtx = ctx[currentCanvas ^ 1];
+
+    backgroundCtx.clearRect(0, 0, ctxWidth, ctxHeight);
+
+    backgroundCtx.lineWidth = 1;
+    backgroundCtx.strokeStyle = "black";
+    backgroundCtx.strokeRect(0, 0, ctxWidth, ctxHeight);
+    backgroundCtx.strokeRect(gameRegionGapSize + 1, gameRegionGapSize + 1, gameRegionSize + 2, gameRegionSize + 2);
+    backgroundCtx.beginPath();
+    backgroundCtx.moveTo(gameRegionSize + gameRegionGapSize * 2 + 2, 0);
+    backgroundCtx.lineTo(gameRegionSize + gameRegionGapSize * 2 + 2, ctxHeight);
+    backgroundCtx.stroke();
+
     switch (gameStatus) {
 
         // game not started yet
         case 0:
+            backgroundCtx.textBaseline = "middle";
+            backgroundCtx.textAlign = "center";
+            backgroundCtx.fillText("Waiting for other participants...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
 
             break;
 
         // game is running
         case 1:
+            // draw boards
+
 
             break;
 
@@ -159,4 +190,4 @@ var RenderingLoop = function() {
  * Main code *
  *************/
 
-NewFrame(renderingLoop);
+NewFrame(RenderingLoop);
