@@ -29,9 +29,9 @@ io.sockets.on('connection', function (sock) {
 
     // a client sends data to server
     sock.on('data', function (data) {
-        if(AllClients[data.id] == null)
-            AllClients[data.id] = sock;
-        DataReceivedFromClient(data.msg);
+        if(AllClients[data.id] !== null) {
+            DataReceivedFromClient(data.msg);
+        }
         //BroadCastAllClients(data);
     });
 });

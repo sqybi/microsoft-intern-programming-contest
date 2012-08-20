@@ -13,6 +13,7 @@ var ballSize          = 7;                   // radius of the ball
 //   0: game not started yet
 //   1: game is running
 //   2: you are dead!
+//   -1: server is full
 var gameStatus = 2;
 
 var ball = {
@@ -73,19 +74,19 @@ function KeyPress(code) {
 // a function needed here to control the board with mouse
 //
 
+function FunctionNeededHere() {
+    // body of this function
+
+    // do not forget to send the new position information to server when changed
+}
+
 //
+// receive messages from server
 // action when a message is coming
-//
-// recieve messages from other clients in this function, to send messages use server.broadcast(msg)
-// note that you will also recieve the message you broadcasted
 //
 
 function Recieve(msg) {
-    if (msg.id != clientID)
-    {
-        r = msg.data;
-        receiveText = "Latest data received from client id: " + msg.id;
-    }
+    
 }
 
 //
@@ -237,6 +238,16 @@ var RenderingLoop = function() {
     backgroundCtx.stroke();
 
     switch (gameStatus) {
+
+        // server is full
+        case -1:
+            backgroundCtx.textBaseline = "middle";
+            backgroundCtx.textAlign = "center";
+            backgroundCtx.fillStyle = "red";
+            backgroundCtx.fillText("Server is already full!", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
+            DrawInfoArea(backgroundCtx);
+
+            break;
 
         // game not started yet
         case 0:
