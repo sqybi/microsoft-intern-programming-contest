@@ -2,19 +2,21 @@
  * Variables *
  *************/
 
+var serverURL         = 'http://localhost';   // URL of server
+
 var ctxWidth          = ctx[0].canvas.width;  // width of the whole canvas
 var ctxHeight         = ctx[0].canvas.height; // height of the whole canvas
 var gameRegionSize    = 600;                  // the side length of game region, NEVER change it
 var gameRegionGapSize = 10;                   // size of the gap between game region and canvas (to place the boards), NEVER change it
 var boardThickness    = 9;                    // thickness of the boards
-var ballSize          = 7;                   // radius of the ball
+var ballSize          = 7;                    // radius of the ball
 
 // status of the game
 //   0: game not started yet
 //   1: game is running
 //   2: you are dead!
-//   -1: server is full
-var gameStatus = 2;
+//   -1: server is full, or connection error
+var gameStatus = 0;
 
 var ball = {
     x: gameRegionSize / 2,
@@ -24,22 +26,26 @@ var boards = [
     {
         id:       clientID,
         position: gameRegionSize / 2,
-        size:     40
+        size:     40,
+        alive:    true
     },
     {
         id:       "",
         position: gameRegionSize / 2,
-        size:     gameRegionSize
+        size:     gameRegionSize,
+        alive:    true
     },
     {
         id:       "",
         position: gameRegionSize / 2,
-        size:     gameRegionSize
+        size:     gameRegionSize,
+        alive:    true
     },
     {
         id:       "",
         position: gameRegionSize / 2,
-        size:     gameRegionSize
+        size:     gameRegionSize,
+        alive:    true
     }
 ];
 
@@ -78,15 +84,6 @@ function FunctionNeededHere() {
     // body of this function
 
     // do not forget to send the new position information to server when changed
-}
-
-//
-// receive messages from server
-// action when a message is coming
-//
-
-function Recieve(msg) {
-    
 }
 
 //
@@ -183,7 +180,36 @@ function DrawGameArea(ctx) {
 //
 
 function DrawInfoArea(ctx) {
+    // Not implemented
+}
 
+//
+// when a new game data is coming
+//
+
+function ReceiveNewGameData(data) {
+    // update local data
+    var remotePos = -1;
+    for (remoteBoard in data.boards) {
+        if (boards[0].id == data.boards[remoteBoard].id) {
+            remotePos = remoteBoard;
+            break;
+        }
+    }
+    if (remotePos == -1 || data.boards.length != 4) {
+        // there is something wrong with this data
+        return;
+    }
+    for (int i = 0; i < 4; ++i) {
+        boards[i] = data.boards[(remotePos + i) % 4];
+    }
+    ball.x = data.ball.x;
+    ball.y = data.ball.y;
+
+    // check for death
+    if (gameStatus == 1 && !boards[0].alive) {
+        gameStatus == 2;
+    }
 }
 
 //
@@ -239,12 +265,12 @@ var RenderingLoop = function() {
 
     switch (gameStatus) {
 
-        // server is full
+        // server is full or connection error
         case -1:
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
             backgroundCtx.fillStyle = "red";
-            backgroundCtx.fillText("Server is already full!", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
+            backgroundCtx.fillText("Server is already full, or you didn't connect to a server!", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
             DrawInfoArea(backgroundCtx);
 
             break;
@@ -292,4 +318,41 @@ var RenderingLoop = function() {
  * Main code *
  *************/
 
+var socket;
+
+try {
+    socket = io.connect(serverURL);
+}
+catch (ex) {
+    //server not running
+    alert('Error when connecting server!');
+    gameStatus = -1;
+}
+
+
+// receive data from server
+socket.on('data', function (data) {
+    ReceiveNewGameData(data);
+});
+
+socket.on('join', function (data) {
+    if (!data) {
+        gameStatus = -1;
+    }
+});
+
+socket.on('start', function (data) {
+    if (gameStatus == 0) {
+        gameStatus = 1;
+    }
+});
+
+
+
+// try to join
+socket.emit('join', {
+    id: clientID
+});
+
+// start rendering
 NewFrame(RenderingLoop);

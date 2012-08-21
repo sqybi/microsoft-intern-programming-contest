@@ -31,27 +31,6 @@
             currentCanvas = 0,
             server = window.now || {};
 
-        try {
-            var socket = io.connect('http://localhost');
-            socket.on('data', function (data) {
-                window.Recieve(data);
-            });
-        }
-        catch (ex) {
-            //server not running
-            alert('Do not run this page without a server!');
-        }
-        socket.emit('join', {
-            id: clientID,
-        });
-        window.broadcast = function(data) {
-            if (window.socket) {
-                socket.emit('data', {
-                    id: clientID,
-                    msg: data
-                });
-            }
-        }
         $(document.body).on('keydown', function(e) {
             switch (e.which) {
                 case 37:

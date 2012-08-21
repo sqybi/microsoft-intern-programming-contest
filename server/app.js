@@ -17,13 +17,42 @@ console.log("You can start the game by going to 127.0.0.1:8080, if you want to j
 
 // receive data from clients
 var AllClients = new Object();
-io.sockets.on('connection', function (sock) {
 
+var gameRegionSize    = 600;                  // the side length of game region, NEVER change it
+var gameRegionGapSize = 10;                   // size of the gap between game region and canvas (to place the boards), NEVER change it
+var boards            = [];
+var ball              = {
+                            x: gameRegionSize / 2.0,
+                            y: gameRegionSize / 2.0,
+                            angle: Math.random() * 2 * PI
+                        };
+var ballIsOut         = false;                // whether the ball is out of pitch or not
+var moveBallInterval  = 100;                  // the interval to move the ball one pixel, in millisecond
+
+io.sockets.on('connection', function (sock) {
     // a new client joins
     sock.on('join', function (data) {
-        if(AllClients[data.id] == null) {
+        if (AllClients[data.id] != null) {
             AllClients[data.id] = sock;
-            sock.emit('joined', null);
+            sock.emit('join', true);
+        }
+        else {
+            if (AllClients.length < 4) {
+                AllClients[data.id] = sock;
+                sock.emit('join', true);
+                if (allClients.length == 4) {
+                    // tell all the clients about game starts
+                    BroadcastAllClients('start', null);
+                    BroadcastAllClientsCurrentBoard();
+
+                    // start to move ball
+                    moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
+                    setInterval(IncreaseMoveBallInterval, 60000);
+                }
+            }
+            else {
+                sock.emit('join', false);
+            }
         }
     });
 
@@ -32,22 +61,59 @@ io.sockets.on('connection', function (sock) {
         if(AllClients[data.id] !== null) {
             DataReceivedFromClient(data.msg);
         }
-        //BroadCastAllClients(data);
     });
 });
 
-function MoveBall() {
+var moveBallInterval = 100;
+var moveBallIntervalHandler;
 
+/*
+ * Functions
+ */
+
+function IncreaseMoveBallInterval() {
+    moveBallInterval = (moveBallInterval * 1.3) >> 0;
+    if (moveBallIntervalHandler != null) {
+        clearInterval(moveBallIntervalHandler);
+    }
+    moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
+}
+
+function MoveBall() {
+    ball.x += Math.cos(ball.angle);
+    ball.y += Math.sin(ball.angle);
+
+    if (!ballIsOut) {
+
+    }
+
+    BroadcastAllClientsCurrentBoard();
 }
 
 function DataReceivedFromClient(data) {
-    console.log(data);
+    for (board in boards) {
+        if (boards[board].id == data.id) {
+            boards[board] = data;
+        }
+    }
+
+    BroadcastAllClientsCurrentBoard();
 }
 
-function BroadCastAllClients(data) {
+function BroadcastAllClientsCurrentBoard() {
+    BroadcastAllClients('data', {
+        ball: {
+            x: ball.x >> 0,
+            y: ball.y >> 0
+        },
+        boards: boards
+    });
+}
+
+function BroadcastAllClients(type, data) {
     for (client in AllClients) {
         if (AllClients[client]) {
-            AllClients[client].emit('data', data);
+            AllClients[client].emit('type', data);
         }
     }
 }
