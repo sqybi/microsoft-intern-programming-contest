@@ -17,6 +17,7 @@ console.log("You can start the game by going to 127.0.0.1:8080, if you want to j
 
 // receive data from clients
 var AllClients = new Object();
+var AllClientsLength = 0;
 
 var gameRegionSize    = 600;                  // the side length of game region, NEVER change it
 var gameRegionGapSize = 10;                   // size of the gap between game region and canvas (to place the boards), NEVER change it
@@ -24,7 +25,7 @@ var boards            = [];
 var ball              = {
                             x: gameRegionSize / 2.0,
                             y: gameRegionSize / 2.0,
-                            angle: Math.random() * 2 * PI
+                            angle: Math.random() * 2 * Math.PI
                         };
 var ballIsOut         = false;                // whether the ball is out of pitch or not
 var moveBallInterval  = 100;                  // the interval to move the ball one pixel, in millisecond
@@ -32,15 +33,25 @@ var moveBallInterval  = 100;                  // the interval to move the ball o
 io.sockets.on('connection', function (sock) {
     // a new client joins
     sock.on('join', function (data) {
+        // already here, with new socket
         if (AllClients[data.id] != null) {
             AllClients[data.id] = sock;
             sock.emit('join', true);
         }
+        // new client
         else {
-            if (AllClients.length < 4) {
+            console.log(AllClientsLength);
+            if (AllClientsLength < 4) {
                 AllClients[data.id] = sock;
+                boards.push({
+                    id:       data.id,
+                    position: gameRegionSize / 2,
+                    size:     40,
+                    alive:    true
+                });
                 sock.emit('join', true);
-                if (allClients.length == 4) {
+                AllClientsLength++;
+                if (AllClientsLength == 4) {
                     // tell all the clients about game starts
                     BroadcastAllClients('start', null);
                     BroadcastAllClientsCurrentBoard();
@@ -64,7 +75,7 @@ io.sockets.on('connection', function (sock) {
     });
 });
 
-var moveBallInterval = 100;
+var moveBallInterval = 10;
 var moveBallIntervalHandler;
 
 /*
@@ -113,7 +124,7 @@ function BroadcastAllClientsCurrentBoard() {
 function BroadcastAllClients(type, data) {
     for (client in AllClients) {
         if (AllClients[client]) {
-            AllClients[client].emit('type', data);
+            AllClients[client].emit(type, data);
         }
     }
 }

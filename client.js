@@ -200,7 +200,7 @@ function ReceiveNewGameData(data) {
         // there is something wrong with this data
         return;
     }
-    for (int i = 0; i < 4; ++i) {
+    for (var i = 0; i < 4; ++i) {
         boards[i] = data.boards[(remotePos + i) % 4];
     }
     ball.x = data.ball.x;
