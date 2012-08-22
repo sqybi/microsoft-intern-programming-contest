@@ -109,6 +109,9 @@ function RandomAngle() {
 
 function IncreaseMoveBallInterval() {
     moveBallInterval = moveBallInterval / 1.3;
+    if (moveBallInterval < 1) {
+        moveBallInterval = 1;
+    }
     if (moveBallIntervalHandler != null) {
         clearInterval(moveBallIntervalHandler);
     }
