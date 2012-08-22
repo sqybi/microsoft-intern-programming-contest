@@ -50,6 +50,9 @@
                     break;
             }
         });
+	$(document).mousemove(function(e){
+		MouseMovedEventHandler({x:e.pageX, y:e.pageY});
+	});
     </script>
     <script type="text/javascript" src="client.js"></script>
 </html>
