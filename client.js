@@ -27,25 +27,29 @@ var boards = [
         id:       clientID,
         position: gameRegionSize / 2,
         size:     40,
-        alive:    true
+        alive:    true,
+        color:    "red"
     },
     {
         id:       "",
         position: gameRegionSize / 2,
-        size:     gameRegionSize,
-        alive:    true
+        size:     gameRegionSize / 2,
+        alive:    true,
+        color:    "blue"
     },
     {
         id:       "",
         position: gameRegionSize / 2,
-        size:     gameRegionSize,
-        alive:    true
+        size:     gameRegionSize / 2,
+        alive:    true,
+        color:    "green"
     },
     {
         id:       "",
         position: gameRegionSize / 2,
-        size:     gameRegionSize,
-        alive:    true
+        size:     gameRegionSize / 2,
+        alive:    true,
+        color:    "cyan"
     }
 ];
 
@@ -63,13 +67,15 @@ var boards = [
 
 function KeyPress(code) {
     switch (code) {
-        case "left":
+        case "left": {
             // do something
             break;
+        }
 
-        case "right":
+        case "right": {
             // do something
             break;
+        }
 
         default:
             // do nothing
@@ -139,7 +145,7 @@ function DrawGameArea(ctx) {
     if (boardRightBoundary >= gameRegionSize) {
         boardRightBoundary = gameRegionSize - 1;
     }
-    ctx.fillStyle = "red";
+    ctx.fillStyle = boards[0].color;
     ctx.fillRect(boardLeftBoundary + gameRegionGapSize + 2, gameRegionSize + gameRegionGapSize + 3,
                  boardRightBoundary - boardLeftBoundary + 1, boardThickness);
 
@@ -151,7 +157,7 @@ function DrawGameArea(ctx) {
     if (boardRightBoundary < 0) {
         boardRightBoundary = 0;
     }
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = boards[1].color;
     ctx.fillRect(gameRegionSize + gameRegionGapSize + 3, boardRightBoundary + gameRegionGapSize + 2,
                  boardThickness, boardLeftBoundary - boardRightBoundary + 1);
 
@@ -163,7 +169,7 @@ function DrawGameArea(ctx) {
     if (boardRightBoundary < 0) {
         boardRightBoundary = 0;
     }
-    ctx.fillStyle = "green";
+    ctx.fillStyle = boards[2].color;
     ctx.fillRect(boardRightBoundary + gameRegionGapSize + 2, gameRegionGapSize - boardThickness + 1,
                  boardLeftBoundary - boardRightBoundary + 1, boardThickness);
 
@@ -175,7 +181,7 @@ function DrawGameArea(ctx) {
     if (boardRightBoundary >= gameRegionSize) {
         boardRightBoundary = gameRegionSize - 1;
     }
-    ctx.fillStyle = "cyan";
+    ctx.fillStyle = boards[3].color;
     ctx.fillRect(gameRegionGapSize - boardThickness + 1, boardLeftBoundary + gameRegionGapSize + 2,
                  boardThickness, boardRightBoundary - boardLeftBoundary + 1);
 
@@ -205,9 +211,9 @@ function DrawInfoArea(ctx) {
 function ReceiveNewGameData(data) {
     // update local data
     var remotePos = -1;
-    for (remoteBoard in data.boards) {
-        if (boards[0].id == data.boards[remoteBoard].id) {
-            remotePos = remoteBoard;
+    for (var i = 0; i < 4; ++i) {
+        if (clientID == data.boards[i].id) {
+            remotePos = i;
             break;
         }
     }
@@ -215,15 +221,39 @@ function ReceiveNewGameData(data) {
         // there is something wrong with this data
         return;
     }
+    console.log(clientID, data.boards[remotePos].id, remotePos);
     for (var i = 0; i < 4; ++i) {
         boards[i] = data.boards[(remotePos + i) % 4];
     }
-    ball.x = data.ball.x;
-    ball.y = data.ball.y;
+    switch (remotePos) {
+        case 0: {
+            ball.x = data.ball.x;
+            ball.y = data.ball.y;
+            break;
+        }
+
+        case 1: {
+            ball.x = gameRegionSize - 1 - data.ball.y;
+            ball.y = data.ball.x;
+            break;
+        }
+
+        case 2: {
+            ball.x = gameRegionSize - 1 - data.ball.x;
+            ball.y = gameRegionSize - 1 - data.ball.y;
+            break;
+        }
+
+        case 3: {
+            ball.x = data.ball.y;
+            ball.y = gameRegionSize - 1 - data.ball.x;
+            break;
+        }
+    }
 
     // check for death
     if (gameStatus == 1 && !boards[0].alive) {
-        gameStatus == 2;
+        gameStatus = 2;
     }
 }
 
@@ -281,7 +311,7 @@ var RenderingLoop = function() {
     switch (gameStatus) {
 
         // server is full or connection error
-        case -1:
+        case -1: {
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
             backgroundCtx.fillStyle = "red";
@@ -289,9 +319,10 @@ var RenderingLoop = function() {
             DrawInfoArea(backgroundCtx);
 
             break;
+        }
 
         // game not started yet
-        case 0:
+        case 0: {
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
             backgroundCtx.fillStyle = "black";
@@ -299,16 +330,18 @@ var RenderingLoop = function() {
             DrawInfoArea(backgroundCtx);
 
             break;
+        }
 
         // game is running
-        case 1:
+        case 1: {
             DrawGameArea(backgroundCtx);
             DrawInfoArea(backgroundCtx);
 
             break;
+        }
 
         // you are dead
-        case 2:
+        case 2: {
             DrawGameArea(backgroundCtx);
 
             backgroundCtx.textBaseline = "middle";
@@ -319,6 +352,7 @@ var RenderingLoop = function() {
             DrawInfoArea(backgroundCtx);
 
             break;
+        }
 
         // must be something wrong if you get here
         default:
