@@ -3,6 +3,7 @@
  *************/
 
 var serverURL         = 'http://localhost';   // URL of server
+var socket;
 
 var ctxWidth          = ctx[0].canvas.width;  // width of the whole canvas
 var ctxHeight         = ctx[0].canvas.height; // height of the whole canvas
@@ -93,7 +94,7 @@ function KeyPress(code) {
 var game_board_width = 12;
 var game_board_x_min = allCanvas[0].x + game_board_width;
 var game_board_x_max = game_board_x_min + gameRegionSize;
-console.log(game_board_x);
+//console.log(game_board_x);
 
 function MouseMovedEventHandler(position) {
     // body of this function
@@ -328,7 +329,7 @@ var RenderingLoop = function() {
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
             backgroundCtx.fillStyle = "red";
-            backgroundCtx.font = "30px Arial";
+            backgroundCtx.font = "24px Arial";
             backgroundCtx.fillText("Server is already full, or you didn't connect to a server!", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
             DrawInfoArea(backgroundCtx);
 
@@ -392,8 +393,6 @@ var RenderingLoop = function() {
 /*************
  * Main code *
  *************/
-
-var socket;
 
 try {
     socket = io.connect(serverURL);
