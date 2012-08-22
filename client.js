@@ -80,8 +80,23 @@ function KeyPress(code) {
 // a function needed here to control the board with mouse
 //
 
-function FunctionNeededHere() {
+var game_board_width = 12;
+var game_board_x_min = allCanvas[0].x + game_board_width;
+var game_board_x_max = game_board_x_min + gameRegionSize;
+console.log(game_board_x);
+
+function MouseMovedEventHandler(position) {
     // body of this function
+
+    var new_x = position.x;
+    if(new_x < game_board_x_min)
+        new_x = game_board_x_min;
+    else if(new_x >= game_board_x_max)
+        new_x = game_board_x_max - 1;
+
+    new_x -= game_board_width;
+
+    socket.emit("move", {id:clientID,msg:new_x});
 
     // do not forget to send the new position information to server when changed
 }
