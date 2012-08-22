@@ -23,14 +23,14 @@ var gameRegionSize      = 600;                  // the side length of game regio
 var gameRegionGapSize   = 10;                   // size of the gap between game region and canvas (to place the boards), NEVER change it
 var ballInitialPosition = gameRegionSize / 2.0; // initial position of ball (both X and Y)
 var ballIsOut           = false;                // whether the ball is out of pitch or not
-var moveBallInterval    = 100;                  // the interval to move the ball one pixel, in millisecond
+var moveBallInterval    = 20;                  // the interval to move the ball one pixel, in millisecond
 var moveBallIntervarHandler;
 
 var boards = [];
 var ball = {
     x: gameRegionSize / 2.0,
     y: gameRegionSize / 2.0,
-    angle: Math.PI // RandomAngle()
+    angle: RandomAngle()
 };
 
 
@@ -141,7 +141,8 @@ function SetDeath(board) {
 
 function MoveBall() {
     ball.x += Math.cos(ball.angle);
-    ball.y += Math.sin(ball.angle);
+    ball.y -= Math.sin(ball.angle);
+    //console.log(Math.cos(ball.angle), Math.sin(ball.angle), ball.angle)
 
     var ballPosition = CheckBallPosition(ball.x, ball.y);
     if (ballIsOut.length <= ballPosition.length && ballIsOut != ballPosition) {
@@ -149,8 +150,8 @@ function MoveBall() {
         boardRightBoundary = [];
         boardLeftBoundary[0] = boards[0].position - boards[0].size;
         boardRightBoundary[0] = boards[0].position + boards[0].size;
-        boardLeftBoundary[1] = gameRegionSize - 1 - boards[2].position + boards[2].size;
-        boardRightBoundary[1] = gameRegionSize - 1 - boards[2].position - boards[2].size;
+        boardLeftBoundary[1] = gameRegionSize - 1 - boards[1].position + boards[1].size;
+        boardRightBoundary[1] = gameRegionSize - 1 - boards[1].position - boards[1].size;
         boardLeftBoundary[2] = gameRegionSize - 1 - boards[2].position + boards[2].size;
         boardRightBoundary[2] = gameRegionSize - 1 - boards[2].position - boards[2].size;
         boardLeftBoundary[3] = boards[3].position - boards[3].size;
@@ -328,7 +329,7 @@ function MoveBall() {
     }
     ballIsOut = ballPosition;
 
-    console.log(ball);
+    //console.log(ball);
     BroadcastAllClientsCurrentBoard();
 }
 
