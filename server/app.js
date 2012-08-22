@@ -27,6 +27,7 @@ var moveBallInterval    = 10;                   // the interval to move the ball
 var moveBallSpeed       = 1;                    // the pixel of movement during the interval
 var moveBallSpeedLimit  = 50;                   // moveBallSpeed is always less than or equal to this value
 var moveBallIntervarHandler;
+var increaseMoveBallSpeedHandler;
 
 var boards = [];
 var ball = {
@@ -87,7 +88,7 @@ io.sockets.on('connection', function (sock) {
 
                     // start to move ball
                     moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
-                    setInterval(IncreaseMoveBallSpeed, 30000);
+                    increaseMoveBallSpeedHandler = setInterval(IncreaseMoveBallSpeed, 30000);
                 }
             }
             else {
@@ -413,6 +414,9 @@ function MoveBall() {
             console.log("[end] end of game!");
             if (moveBallIntervalHandler != null) {
                 clearInterval(moveBallIntervalHandler);
+            }
+            if (increaseMoveBallSpeedHandler != null) {
+                clearInterval(increaseMoveBallSpeedHandler);
             }
             AllClients = new Object();
             AllClientsLength = 0;
