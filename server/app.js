@@ -41,12 +41,14 @@ io.sockets.on('connection', function (sock) {
     sock.on('join', function (data) {
         // already here, with new socket
         if (AllClients[data.id] != null) {
+            console.log("[join] existing user with id '" + data.id + "'");
             AllClients[data.id] = sock;
             sock.emit('join', true);
         }
         // new client
         else {
             if (AllClientsLength < 4) {
+                console.log("[join] new user with id '" + data.id + "'");
                 AllClients[data.id] = sock;
                 var color;
                 switch (AllClientsLength) {
@@ -81,6 +83,7 @@ io.sockets.on('connection', function (sock) {
                     // tell all the clients about game starts
                     BroadcastAllClients('start', null);
                     BroadcastAllClientsCurrentBoard();
+                    console.log("[start] game starts!");
 
                     // start to move ball
                     moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
@@ -88,18 +91,20 @@ io.sockets.on('connection', function (sock) {
                 }
             }
             else {
+                console.log("[join] server is full, user id '" + data.id + "'");
                 sock.emit('join', false);
             }
         }
     });
 
-    // a client sends data to server
+    // a client sends data to server (not in use)
     sock.on('data', function (data) {
         if(AllClients[data.id] !== null) {
             DataReceivedFromClient(data.msg);
         }
     });
 
+    // board moving information from client
     sock.on('move', function (data) {
         for (var i = 0; i < 4; ++i) {
             if (boards[i] != null && boards[i].alive && boards[i].id == data.id) {
@@ -136,6 +141,9 @@ function IncreaseMoveBallSpeed() {
     if (moveBallSpeed > moveBallSpeedLimit) {
         moveBallSpeed = moveBallSpeedLimit;
     }
+    else {
+        console.log("[ball] the ball is becoming faster with a speed " + moveBallSpeed + " per " + moveBallInterval + " milliseconds");
+    }
 }
 
 function CheckBallPosition(x, y)
@@ -160,6 +168,7 @@ function SetDeath(board) {
     board.alive = false;
     board.position = gameRegionSize / 2;
     board.size = gameRegionSize / 2;
+    console.log("[death] user with id '" + board.id + "' is dead");
 }
 
 function MoveBall() {
@@ -401,6 +410,7 @@ function MoveBall() {
         if (totalAlive <= 1) {
             // game ends, prepare for another game
             BroadcastAllClients("end", null);
+            console.log("[end] end of game!");
             if (moveBallIntervalHandler != null) {
                 clearInterval(moveBallIntervalHandler);
             }
