@@ -102,7 +102,7 @@ io.sockets.on('connection', function (sock) {
 
     sock.on('move', function (data) {
         for (var i = 0; i < 4; ++i) {
-            if (boards[i] != null && boards[i].id == data.id) {
+            if (boards[i] != null && boards[i].alive && boards[i].id == data.id) {
                 boards[i].position = data.msg;
                 break;
             }

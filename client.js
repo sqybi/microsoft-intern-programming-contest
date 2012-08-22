@@ -99,15 +99,24 @@ var game_board_x_max = game_board_x_min + gameRegionSize;
 function MouseMovedEventHandler(position) {
     // body of this function
 
-    var new_x = position.x;
-    if(new_x < game_board_x_min)
-        new_x = game_board_x_min;
-    else if(new_x >= game_board_x_max)
-        new_x = game_board_x_max - 1;
+    if (gameStatus == 1 && boards[0].alive) {
+        var new_x = position.x;
+        if(new_x < game_board_x_min)
+            new_x = game_board_x_min;
+        else if(new_x >= game_board_x_max)
+            new_x = game_board_x_max - 1;
 
-    new_x -= game_board_width;
+        new_x -= game_board_width;
 
-    socket.emit("move", {id:clientID,msg:new_x});
+        if (new_x < 0) {
+            new_x = 0;
+        }
+        else if (new_x >= gameRegionSize) {
+            new_x = gameRegionSize - 1;
+        }
+
+        socket.emit("move", {id:clientID,msg:new_x});
+    }
 
     // do not forget to send the new position information to server when changed
 }
