@@ -23,7 +23,8 @@ var gameRegionSize      = 600;                  // the side length of game regio
 var gameRegionGapSize   = 10;                   // size of the gap between game region and canvas (to place the boards), NEVER change it
 var ballInitialPosition = gameRegionSize / 2.0; // initial position of ball (both X and Y)
 var ballIsOut           = false;                // whether the ball is out of pitch or not
-var moveBallInterval    = 20;                  // the interval to move the ball one pixel, in millisecond
+var moveBallInterval    = 10;                   // the interval to move the ball, in millisecond
+var moveBallSpeed       = 1;                    // the pixel of movement during the interval
 var moveBallIntervarHandler;
 
 var boards = [];
@@ -70,7 +71,8 @@ io.sockets.on('connection', function (sock) {
                     position: gameRegionSize / 2,
                     size:     40,
                     alive:    true,
-                    color:    color
+                    color:    color,
+                    hits:     0
                 });
                 sock.emit('join', true);
                 AllClientsLength++;
@@ -81,7 +83,7 @@ io.sockets.on('connection', function (sock) {
 
                     // start to move ball
                     moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
-                    setInterval(IncreaseMoveBallInterval, 30000);
+                    setInterval(IncreaseMoveBallSpeed, 30000);
                 }
             }
             else {
@@ -107,6 +109,7 @@ function RandomAngle() {
     return Math.random() * 2 * Math.PI;
 }
 
+// this function is abandoned
 function IncreaseMoveBallInterval() {
     moveBallInterval = moveBallInterval / 1.3;
     if (moveBallInterval < 1) {
@@ -116,6 +119,10 @@ function IncreaseMoveBallInterval() {
         clearInterval(moveBallIntervalHandler);
     }
     moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval >> 0);
+}
+
+function IncreaseMoveBallSpeed() {
+    moveBallSpeed = moveBallSpeed * 1.3;
 }
 
 function CheckBallPosition(x, y)
@@ -168,11 +175,17 @@ function MoveBall() {
                         death = true;
                     }
                 }
+                else if (boards[2].alive) {
+                    boards[2].hits++;
+                }
                 if (ball.y < boardLeftBoundary[3]) {
                     if (boards[3].alive) {
                         SetDeath(boards[3]);
                         death = true;
                     }
+                }
+                else if (boards[3].alive) {
+                    boards[3].hits++;
                 }
                 if (death) {
                     ball.x = ballInitialPosition;
@@ -192,11 +205,17 @@ function MoveBall() {
                         death = true;
                     }
                 }
+                else if (boards[2].alive) {
+                    boards[2].hits++;
+                }
                 if (ball.y < boardRightBoundary[1]) {
                     if (boards[1].alive) {
                         SetDeath(boards[1]);
                         death = true;
                     }
+                }
+                else if (boards[1].alive) {
+                    boards[1].hits++;
                 }
                 if (death) {
                     ball.x = ballInitialPosition;
@@ -216,11 +235,17 @@ function MoveBall() {
                         death = true;
                     }
                 }
+                else if (boards[0].alive) {
+                    boards[0].hits++;
+                }
                 if (ball.y > boardLeftBoundary[1]) {
                     if (boards[1].alive) {
                         SetDeath(boards[1]);
                         death = true;
                     }
+                }
+                else if (boards[1].alive) {
+                    boards[1].hits++;
                 }
                 if (death) {
                     ball.x = ballInitialPosition;
@@ -240,11 +265,17 @@ function MoveBall() {
                         death = true;
                     }
                 }
+                else if (boards[0].alive) {
+                    boards[0].hits++;
+                }
                 if (ball.y > boardRightBoundary[3]) {
                     if (boards[3].alive) {
                         SetDeath(boards[3]);
                         death = true;
                     }
+                }
+                else if (boards[3].alive) {
+                    boards[3].hits++;
                 }
                 if (death) {
                     ball.x = ballInitialPosition;
@@ -264,6 +295,9 @@ function MoveBall() {
                         death = true;
                     }
                 }
+                else if (boards[0].alive) {
+                    boards[0].hits++;
+                }
                 if (death) {
                     ball.x = ballInitialPosition;
                     ball.y = ballInitialPosition;
@@ -281,6 +315,9 @@ function MoveBall() {
                         SetDeath(boards[1]);
                         death = true;
                     }
+                }
+                else if (boards[1].alive) {
+                    boards[1].hits++;
                 }
                 if (death) {
                     ball.x = ballInitialPosition;
@@ -300,6 +337,9 @@ function MoveBall() {
                         death = true;
                     }
                 }
+                else if (boards[2].alive) {
+                    boards[2].hits++;
+                }
                 if (death) {
                     ball.x = ballInitialPosition;
                     ball.y = ballInitialPosition;
@@ -318,6 +358,9 @@ function MoveBall() {
                         death = true;
                     }
                 }
+                else if (boards[3].alive) {
+                    boards[3].hits++;
+                }
                 if (death) {
                     ball.x = ballInitialPosition;
                     ball.y = ballInitialPosition;
@@ -334,6 +377,24 @@ function MoveBall() {
 
     //console.log(ball);
     BroadcastAllClientsCurrentBoard();
+
+    if (death) {
+        var totalAlive = 0;
+        for (var i = 0; i < 4; ++i) {
+            if (boards[i].alive) {
+                ++totalAlive;
+            }
+        }
+        if (totalAlive <= 1) {
+            // game ends, prepare for another game
+            BroadcastAllClients("end", null);
+            if (moveBallIntervalHandler != null) {
+                clearInterval(moveBallIntervalHandler);
+            }
+            AllClients = new Object();
+            boards = [];
+        }
+    }
 }
 
 function DataReceivedFromClient(data) {

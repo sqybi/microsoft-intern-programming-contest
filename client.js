@@ -14,7 +14,7 @@ var ballSize          = 7;                    // radius of the ball
 // status of the game
 //   0: game not started yet
 //   1: game is running
-//   2: you are dead!
+//   2: game finished
 //   -1: server is full, or connection error
 var gameStatus = 0;
 
@@ -28,28 +28,32 @@ var boards = [
         position: gameRegionSize / 2,
         size:     40,
         alive:    true,
-        color:    "red"
+        color:    "red",
+        hits:     0
     },
     {
         id:       "",
         position: gameRegionSize / 2,
         size:     gameRegionSize / 2,
         alive:    true,
-        color:    "blue"
+        color:    "blue",
+        hits:     0
     },
     {
         id:       "",
         position: gameRegionSize / 2,
         size:     gameRegionSize / 2,
         alive:    true,
-        color:    "green"
+        color:    "green",
+        hits:     0
     },
     {
         id:       "",
         position: gameRegionSize / 2,
         size:     gameRegionSize / 2,
         alive:    true,
-        color:    "cyan"
+        color:    "cyan",
+        hits:     0
     }
 ];
 
@@ -186,7 +190,21 @@ function DrawGameArea(ctx) {
 //
 
 function DrawInfoArea(ctx) {
-    // Not implemented
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "black";
+    ctx.font = "30px Arial";
+    ctx.fillText("Hits List", gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 20);
+
+    if (gameStatus > 0) {
+        for (var i = 0; i < 4; ++i) {
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillStyle = boards[i].color;
+            ctx.font = "16px Arial";
+            ctx.fillText(boards[i].color + ": " + boards[i].hits, gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 60 + 20 * i);
+        }
+    }
 }
 
 //
@@ -234,11 +252,6 @@ function ReceiveNewGameData(data) {
             ball.y = gameRegionSize - 1 - data.ball.x;
             break;
         }
-    }
-
-    // check for death
-    if (gameStatus == 1 && !boards[0].alive) {
-        gameStatus = 2;
     }
 }
 
@@ -300,6 +313,7 @@ var RenderingLoop = function() {
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
             backgroundCtx.fillStyle = "red";
+            backgroundCtx.font = "30px Arial";
             backgroundCtx.fillText("Server is already full, or you didn't connect to a server!", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
             DrawInfoArea(backgroundCtx);
 
@@ -311,6 +325,7 @@ var RenderingLoop = function() {
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
             backgroundCtx.fillStyle = "black";
+            backgroundCtx.font = "30px Arial";
             backgroundCtx.fillText("Waiting for other participants...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
             DrawInfoArea(backgroundCtx);
 
@@ -320,20 +335,31 @@ var RenderingLoop = function() {
         // game is running
         case 1: {
             DrawGameArea(backgroundCtx);
+            if (!boards[0].alive) {
+                backgroundCtx.textBaseline = "middle";
+                backgroundCtx.textAlign = "center";
+                backgroundCtx.fillStyle = "red";
+                backgroundCtx.font = "30px Arial";
+                backgroundCtx.fillText("You are dead...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
+            }
             DrawInfoArea(backgroundCtx);
 
             break;
         }
 
-        // you are dead
+        // game finished!
         case 2: {
-            DrawGameArea(backgroundCtx);
-
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
-            backgroundCtx.fillStyle = "red";
-            backgroundCtx.fillText("You are dead...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
-
+            backgroundCtx.font = "30px Arial";
+            if (boards[0].alive) {
+                backgroundCtx.fillStyle = "red";
+                backgroundCtx.fillText("You win!", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
+            }
+            else {
+                backgroundCtx.fillStyle = "blue";
+                backgroundCtx.fillText("You lose...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);   
+            }
             DrawInfoArea(backgroundCtx);
 
             break;
@@ -378,6 +404,12 @@ socket.on('join', function (data) {
 socket.on('start', function (data) {
     if (gameStatus == 0) {
         gameStatus = 1;
+    }
+});
+
+socket.on('end', function (data) {
+    if (gameStatus == 1) {
+        gameStatus = 2;
     }
 });
 
