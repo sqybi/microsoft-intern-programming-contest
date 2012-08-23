@@ -59,3 +59,7 @@ Just visit the IP address of the server with port 8080!
 ## Copyright Announcement
 
 The splash screen from this [original link](http://www.flickr.com/photos/oter/4730719419/in/photostream/) by [Jo Christian Oterhals](http://www.flickr.com/photos/oter/). It's published with [CC BY-NC-ND 2.0](http://creativecommons.org/licenses/by-nc-nd/2.0/).
+
+## Download
+
+You could always get the newest version of this game from [the repository on Github](https://github.com/sqybi/MsInternProgrammingContest). You could also fork from this repository without permission.
