@@ -17,7 +17,8 @@ var ballSize          = 7;                    // radius of the ball
 //   1: game is running
 //   2: game finished
 //   -1: server is full, or connection error
-var gameStatus = 0;
+//   -2: splash screen
+var gameStatus = -2;
 
 var ball = {
     x: gameRegionSize / 2,
@@ -233,6 +234,21 @@ function DrawInfoArea(ctx) {
 }
 
 //
+// draw the borders of the canvas
+//
+
+function DrawBorder(ctx) {
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(0, 0, ctxWidth, ctxHeight);
+    ctx.strokeRect(gameRegionGapSize + 1, gameRegionGapSize + 1, gameRegionSize + 2, gameRegionSize + 2);
+    ctx.beginPath();
+    ctx.moveTo(gameRegionSize + gameRegionGapSize * 2 + 3, 0);
+    ctx.lineTo(gameRegionSize + gameRegionGapSize * 2 + 3, ctxHeight);
+    ctx.stroke();
+}
+
+//
 // when a new game data is coming
 //
 
@@ -249,7 +265,7 @@ function ReceiveNewGameData(data) {
         // there is something wrong with this data
         return;
     }
-    console.log(clientID, data.boards[remotePos].id, remotePos);
+    //console.log(clientID, data.boards[remotePos].id, remotePos);
     for (var i = 0; i < 4; ++i) {
         boards[i] = data.boards[(remotePos + i) % 4];
     }
@@ -322,16 +338,15 @@ var RenderingLoop = function() {
 
     backgroundCtx.clearRect(0, 0, ctxWidth, ctxHeight);
 
-    backgroundCtx.lineWidth = 1;
-    backgroundCtx.strokeStyle = "black";
-    backgroundCtx.strokeRect(0, 0, ctxWidth, ctxHeight);
-    backgroundCtx.strokeRect(gameRegionGapSize + 1, gameRegionGapSize + 1, gameRegionSize + 2, gameRegionSize + 2);
-    backgroundCtx.beginPath();
-    backgroundCtx.moveTo(gameRegionSize + gameRegionGapSize * 2 + 3, 0);
-    backgroundCtx.lineTo(gameRegionSize + gameRegionGapSize * 2 + 3, ctxHeight);
-    backgroundCtx.stroke();
+    DrawBorder(backgroundCtx);
 
     switch (gameStatus) {
+
+        // splash screen
+        case -2: {
+            // do nothing
+            break;
+        }
 
         // server is full or connection error
         case -1: {
@@ -436,12 +451,23 @@ socket.on('end', function (data) {
     }
 });
 
+allCanvas[currentCanvas].visible = true;
+allCanvas[currentCanvas ^ 1].visible = false;
+DrawBorder(ctx[currentCanvas]);
+var img = new Image();
+img.src = "cover_600.jpg";
+img.onload = function () {
+    ctx[currentCanvas].drawImage(img, gameRegionGapSize + 2, gameRegionGapSize + 2, gameRegionSize, gameRegionSize);
+}
 
+setTimeout(function () {
+    gameStatus = 0;
+    
+    // try to join
+    socket.emit('join', {
+        id: clientID
+    });
 
-// try to join
-socket.emit('join', {
-    id: clientID
-});
-
-// start rendering
-NewFrame(RenderingLoop);
+    // start rendering
+    NewFrame(RenderingLoop);
+}, 2000);
