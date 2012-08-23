@@ -326,8 +326,11 @@ function MoveBall() {
                     ball.y = ballInitialPosition;
                     ball.angle = RandomAngle();
                 }
-                else {
+                else if (boards[0].alive) {
                     ball.angle = ((boardRightBoundary[0] - ball.x) / (boardRightBoundary[0] - boardLeftBoundary[0]) * 2 + 1) / 4 * Math.PI;
+                }
+                else {
+                    ball.angle = 2 * Math.PI - ball.angle;
                 }
                 break;
             }
@@ -347,8 +350,11 @@ function MoveBall() {
                     ball.y = ballInitialPosition;
                     ball.angle = RandomAngle();
                 }
-                else {
+                else if (boards[1].alive) {
                     ball.angle = ((ball.y - boardRightBoundary[1]) / (boardLeftBoundary[1] - boardRightBoundary[1]) * 2 + 3) / 4 * Math.PI;
+                }
+                else {
+                    ball.angle = Math.PI - ball.angle;
                 }
                 break;
             }
@@ -368,8 +374,11 @@ function MoveBall() {
                     ball.y = ballInitialPosition;
                     ball.angle = RandomAngle();
                 }
-                else {
+                else if (boards[2].alive) {
                     ball.angle = ((ball.x - boardRightBoundary[2]) / (boardLeftBoundary[2] - boardRightBoundary[2]) * 2 + 5) / 4 * Math.PI;
+                }
+                else {
+                    ball.angle = 2 * Math.PI - ball.angle;
                 }
                 break;
             }
@@ -389,8 +398,11 @@ function MoveBall() {
                     ball.y = ballInitialPosition;
                     ball.angle = RandomAngle();
                 }
-                else {
+                else if (boards[3].alive) {
                     ball.angle = ((boardRightBoundary[3] - ball.y) / (boardRightBoundary[3] - boardLeftBoundary[3]) * 2 + 7) / 4 * Math.PI;
+                }
+                else {
+                    ball.angle = Math.PI - ball.angle;
                 }
                 break;
             }
