@@ -82,10 +82,24 @@ io.sockets.on('connection', function (sock) {
                     id:       data.id,
                     position: gameRegionSize / 2,
                     size:     40,
-                    alive:    true,
+                    life:     3,
                     color:    color,
                     hits:     0
                 });
+                
+                /* debug */
+                for (var i = 0; i != 3; ++i)
+                boards.push({
+                    ip:       "",
+                    id:       "",
+                    position: gameRegionSize / 2,
+                    size:     40,
+                    life:     3,
+                    color:    "green",
+                    hits:     0
+                });
+                AllClientsLength = 3;
+
                 sock.emit('join', true);
                 AllClientsLength++;
                 if (AllClientsLength == 4) {
@@ -118,7 +132,7 @@ io.sockets.on('connection', function (sock) {
     // board moving information from client
     sock.on('move', function (data) {
         for (var i = 0; i < 4; ++i) {
-            if (boards[i] != null && boards[i].alive && boards[i].id == data.id) {
+            if (boards[i] != null && boards[i].life > 0 && boards[i].id == data.id) {
                 boards[i].position = data.msg;
                 break;
             }
@@ -176,10 +190,16 @@ function CheckBallPosition(x, y)
 }
 
 function SetDeath(board) {
-    board.alive = false;
-    board.position = gameRegionSize / 2;
-    board.size = gameRegionSize / 2;
-    console.log("[death] user with id '" + board.id + "' is dead");
+    board.life--;
+    if (board.life == 0)
+    {
+        board.position = gameRegionSize / 2;
+        board.size = gameRegionSize / 2;
+        console.log("[death] user with id '" + board.id + "' is dead");
+    }
+    else {
+        console.log("[death] user with id '" + board.id + "' has " + board.life + " lives left");
+    }
 }
 
 function MoveBall() {
@@ -203,29 +223,24 @@ function MoveBall() {
         switch (ballPosition) {
             case "WN": {
                 if (ball.x < boardRightBoundary[2]) {
-                    if (boards[2].alive) {
+                    if (boards[2].life > 0) {
                         SetDeath(boards[2]);
                         death = true;
                     }
                 }
-                else if (boards[2].alive) {
+                else if (boards[2].life > 0) {
                     boards[2].hits++;
                 }
                 if (ball.y < boardLeftBoundary[3]) {
-                    if (boards[3].alive) {
+                    if (boards[3].life > 0) {
                         SetDeath(boards[3]);
                         death = true;
                     }
                 }
-                else if (boards[3].alive) {
+                else if (boards[3].life > 0) {
                     boards[3].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else {
+                if (!death) {
                     ball.angle = Math.PI * 7 / 4;
                 }
                 break;
@@ -233,29 +248,24 @@ function MoveBall() {
 
             case "EN": {
                 if (ball.x > boardLeftBoundary[2]) {
-                    if (boards[2].alive) {
+                    if (boards[2].life > 0) {
                         SetDeath(boards[2]);
                         death = true;
                     }
                 }
-                else if (boards[2].alive) {
+                else if (boards[2].life > 0) {
                     boards[2].hits++;
                 }
                 if (ball.y < boardRightBoundary[1]) {
-                    if (boards[1].alive) {
+                    if (boards[1].life > 0) {
                         SetDeath(boards[1]);
                         death = true;
                     }
                 }
-                else if (boards[1].alive) {
+                else if (boards[1].life > 0) {
                     boards[1].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else {
+                if (!death) {
                     ball.angle = Math.PI * 5 / 4;
                 }
                 break;
@@ -263,29 +273,24 @@ function MoveBall() {
 
             case "ES": {
                 if (ball.x > boardRightBoundary[0]) {
-                    if (boards[0].alive) {
+                    if (boards[0].life > 0) {
                         SetDeath(boards[0]);
                         death = true;
                     }
                 }
-                else if (boards[0].alive) {
+                else if (boards[0].life > 0) {
                     boards[0].hits++;
                 }
                 if (ball.y > boardLeftBoundary[1]) {
-                    if (boards[1].alive) {
+                    if (boards[1].life > 0) {
                         SetDeath(boards[1]);
                         death = true;
                     }
                 }
-                else if (boards[1].alive) {
+                else if (boards[1].life > 0) {
                     boards[1].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else {
+                if (!death) {
                     ball.angle = Math.PI * 3 / 4;
                 }
                 break;
@@ -293,29 +298,24 @@ function MoveBall() {
 
             case "WS": {
                 if (ball.x < boardLeftBoundary[0]) {
-                    if (boards[0].alive) {
+                    if (boards[0].life > 0) {
                         SetDeath(boards[0]);
                         death = true;
                     }
                 }
-                else if (boards[0].alive) {
+                else if (boards[0].life > 0) {
                     boards[0].hits++;
                 }
                 if (ball.y > boardRightBoundary[3]) {
-                    if (boards[3].alive) {
+                    if (boards[3].life > 0) {
                         SetDeath(boards[3]);
                         death = true;
                     }
                 }
-                else if (boards[3].alive) {
+                else if (boards[3].life > 0) {
                     boards[3].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else {
+                if (!death) {
                     ball.angle = Math.PI * 1 / 4;
                 }
                 break;
@@ -323,96 +323,84 @@ function MoveBall() {
 
             case "S": {
                 if (ball.x < boardLeftBoundary[0] || ball.x > boardRightBoundary[0]) {
-                    if (boards[0].alive) {
+                    if (boards[0].life > 0) {
                         SetDeath(boards[0]);
                         death = true;
                     }
                 }
-                else if (boards[0].alive) {
+                else if (boards[0].life > 0) {
                     boards[0].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else if (boards[0].alive) {
-                    ball.angle = ((boardRightBoundary[0] - ball.x) / (boardRightBoundary[0] - boardLeftBoundary[0]) * 2 + 1) / 4 * Math.PI;
-                }
-                else {
-                    ball.angle = 2 * Math.PI - ball.angle;
+                if (!death) {
+                    if (boards[0].life > 0) {
+                        ball.angle = ((boardRightBoundary[0] - ball.x) / (boardRightBoundary[0] - boardLeftBoundary[0]) * 2 + 1) / 4 * Math.PI;
+                    }
+                    else {
+                        ball.angle = 2 * Math.PI - ball.angle;
+                    }
                 }
                 break;
             }
 
             case "E": {
                 if (ball.y > boardLeftBoundary[1] || ball.y < boardRightBoundary[1]) {
-                    if (boards[1].alive) {
+                    if (boards[1].life > 0) {
                         SetDeath(boards[1]);
                         death = true;
                     }
                 }
-                else if (boards[1].alive) {
+                else if (boards[1].life > 0) {
                     boards[1].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else if (boards[1].alive) {
-                    ball.angle = ((ball.y - boardRightBoundary[1]) / (boardLeftBoundary[1] - boardRightBoundary[1]) * 2 + 3) / 4 * Math.PI;
-                }
-                else {
-                    ball.angle = Math.PI - ball.angle;
+                if (!death) {
+                    if (boards[1].life > 0) {
+                        ball.angle = ((ball.y - boardRightBoundary[1]) / (boardLeftBoundary[1] - boardRightBoundary[1]) * 2 + 3) / 4 * Math.PI;
+                    }
+                    else {
+                        ball.angle = Math.PI - ball.angle;
+                    }
                 }
                 break;
             }
 
             case "N": {
                 if (ball.x > boardLeftBoundary[2] || ball.x < boardRightBoundary[2]) {
-                    if (boards[2].alive) {
+                    if (boards[2].life > 0) {
                         SetDeath(boards[2]);
                         death = true;
                     }
                 }
-                else if (boards[2].alive) {
+                else if (boards[2].life > 0) {
                     boards[2].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else if (boards[2].alive) {
-                    ball.angle = ((ball.x - boardRightBoundary[2]) / (boardLeftBoundary[2] - boardRightBoundary[2]) * 2 + 5) / 4 * Math.PI;
-                }
-                else {
-                    ball.angle = 2 * Math.PI - ball.angle;
+                if (!death) {
+                    if (boards[2].life > 0) {
+                        ball.angle = ((ball.x - boardRightBoundary[2]) / (boardLeftBoundary[2] - boardRightBoundary[2]) * 2 + 5) / 4 * Math.PI;
+                    }
+                    else {
+                        ball.angle = 2 * Math.PI - ball.angle;
+                    }
                 }
                 break;
             }
 
             case "W": {
                 if (ball.y < boardLeftBoundary[3] || ball.y > boardRightBoundary[3]) {
-                    if (boards[3].alive) {
+                    if (boards[3].life > 0) {
                         SetDeath(boards[3]);
                         death = true;
                     }
                 }
-                else if (boards[3].alive) {
+                else if (boards[3].life > 0) {
                     boards[3].hits++;
                 }
-                if (death) {
-                    ball.x = ballInitialPosition;
-                    ball.y = ballInitialPosition;
-                    ball.angle = RandomAngle();
-                }
-                else if (boards[3].alive) {
-                    ball.angle = ((boardRightBoundary[3] - ball.y) / (boardRightBoundary[3] - boardLeftBoundary[3]) * 2 + 7) / 4 * Math.PI;
-                }
-                else {
-                    ball.angle = Math.PI - ball.angle;
+                if (!death) {
+                    if (boards[3].life > 0) {
+                        ball.angle = ((boardRightBoundary[3] - ball.y) / (boardRightBoundary[3] - boardLeftBoundary[3]) * 2 + 7) / 4 * Math.PI;
+                    }
+                    else {
+                        ball.angle = Math.PI - ball.angle;
+                    }
                 }
                 break;
             }
@@ -424,9 +412,15 @@ function MoveBall() {
     BroadcastAllClientsCurrentBoard();
 
     if (death) {
+        ball.x = ballInitialPosition;
+        ball.y = ballInitialPosition;
+        ball.angle = RandomAngle();
+        for (var i = 0; i < 4; ++i) {
+            boards[i].position = gameRegionSize / 2;
+        }
         var totalAlive = 0;
         for (var i = 0; i < 4; ++i) {
-            if (boards[i].alive) {
+            if (boards[i].life > 0) {
                 ++totalAlive;
             }
         }
@@ -451,6 +445,19 @@ function MoveBall() {
                 y: gameRegionSize / 2.0,
                 angle: RandomAngle()
             }
+        }
+        else {
+            // one lose his life, game pause for 3 seconds
+            if (moveBallIntervalHandler != null) {
+                clearInterval(moveBallIntervalHandler);
+            }
+            if (increaseMoveBallSpeedHandler != null) {
+                clearInterval(increaseMoveBallSpeedHandler);
+            }
+            setTimeout(function () {
+                moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
+            }, 3000);
+            increaseMoveBallSpeedHandler = setInterval(IncreaseMoveBallSpeed, 20000);
         }
     }
 }

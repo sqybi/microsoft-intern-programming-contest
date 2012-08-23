@@ -20,6 +20,9 @@ var ballSize          = 7;                    // radius of the ball
 //   -2: splash screen
 var gameStatus = -2;
 
+var prevLife = [];
+var loseLifeTip = "";
+
 var ball = {
     x: gameRegionSize / 2,
     y: gameRegionSize / 2
@@ -29,7 +32,7 @@ var boards = [
         id:       clientID,
         position: gameRegionSize / 2,
         size:     40,
-        alive:    true,
+        life:     3,
         color:    "red",
         hits:     0
     },
@@ -37,7 +40,7 @@ var boards = [
         id:       "",
         position: gameRegionSize / 2,
         size:     gameRegionSize / 2,
-        alive:    true,
+        life:     3,
         color:    "blue",
         hits:     0
     },
@@ -45,7 +48,7 @@ var boards = [
         id:       "",
         position: gameRegionSize / 2,
         size:     gameRegionSize / 2,
-        alive:    true,
+        life:     3,
         color:    "green",
         hits:     0
     },
@@ -53,7 +56,7 @@ var boards = [
         id:       "",
         position: gameRegionSize / 2,
         size:     gameRegionSize / 2,
-        alive:    true,
+        life:     3,
         color:    "cyan",
         hits:     0
     }
@@ -100,7 +103,7 @@ var game_board_x_max = game_board_x_min + gameRegionSize;
 function MouseMovedEventHandler(position) {
     // body of this function
 
-    if (gameStatus == 1 && boards[0].alive) {
+    if (gameStatus == 1 && boards[0].life > 0) {
         var new_x = position.x;
         if(new_x < game_board_x_min)
             new_x = game_board_x_min;
@@ -220,7 +223,7 @@ function DrawInfoArea(ctx) {
     ctx.textAlign = "center";
     ctx.fillStyle = "black";
     ctx.font = "30px Arial";
-    ctx.fillText("Hits List", gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 20);
+    ctx.fillText("Life List", gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 20);
 
     if (gameStatus > 0) {
         for (var i = 0; i < 4; ++i) {
@@ -228,7 +231,23 @@ function DrawInfoArea(ctx) {
             ctx.textAlign = "center";
             ctx.fillStyle = boards[i].color;
             ctx.font = "16px Arial";
-            ctx.fillText(boards[i].color + ": " + boards[i].hits, gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 60 + 20 * i);
+            ctx.fillText(boards[i].color + ": " + boards[i].life, gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 60 + 20 * i);
+        }
+    }
+
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "black";
+    ctx.font = "30px Arial";
+    ctx.fillText("Hits List", gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 170);
+
+    if (gameStatus > 0) {
+        for (var i = 0; i < 4; ++i) {
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillStyle = boards[i].color;
+            ctx.font = "16px Arial";
+            ctx.fillText(boards[i].color + ": " + boards[i].hits, gameRegionGapSize + gameRegionSize + 4 + (ctxWidth - gameRegionSize - gameRegionGapSize - 5) / 2, 210 + 20 * i);
         }
     }
 }
@@ -375,12 +394,39 @@ var RenderingLoop = function() {
         // game is running
         case 1: {
             DrawGameArea(backgroundCtx);
-            if (!boards[0].alive) {
+            for (var i = 0; i < 4; ++i) {
+                if (boards[i].life < prevLife[i]) {
+                    if (boards[i].life <= 0) {
+                        if (i == 0) {
+                            loseLifeTip = "You are dead...";
+                        }
+                        else {
+                            loseLifeTip = "Someone is dead...";
+                        }
+                    }
+                    else {
+                        if (i == 0) {
+                            loseLifeTip = "You lose a life!";
+                        }
+                        else {
+                            loseLifeTip = "Someone lose a life!";
+                        }
+                    }
+                    setTimeout(function () {
+                        loseLifeTip = "";
+                    }, 2000);
+                    break;
+                }
+            }
+            for (var i = 0; i < 4; ++i) {
+                prevLife[i] = boards[i].life;
+            }
+            if (loseLifeTip !== "") {
                 backgroundCtx.textBaseline = "middle";
                 backgroundCtx.textAlign = "center";
                 backgroundCtx.fillStyle = "red";
                 backgroundCtx.font = "30px Arial";
-                backgroundCtx.fillText("You are dead...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
+                backgroundCtx.fillText(loseLifeTip, gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
             }
             DrawInfoArea(backgroundCtx);
 
@@ -392,7 +438,7 @@ var RenderingLoop = function() {
             backgroundCtx.textBaseline = "middle";
             backgroundCtx.textAlign = "center";
             backgroundCtx.font = "30px Arial";
-            if (boards[0].alive) {
+            if (boards[0].life > 0) {
                 backgroundCtx.fillStyle = "red";
                 backgroundCtx.fillText("You win!", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
             }
