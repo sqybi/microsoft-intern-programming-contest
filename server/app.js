@@ -41,16 +41,23 @@ io.sockets.on('connection', function (sock) {
     // a new client joins
     sock.on('join', function (data) {
         // already here, with new socket
-        if (AllClients[data.id] != null) {
-            console.log("[join] existing user with id '" + data.id + "'");
-            AllClients[data.id] = sock;
+        if (AllClients[sock.handshake.address.address] != null) {
+            console.log("[join] existing user with new id '" + data.id + "' and IP " + sock.handshake.address.address + ":" + sock.handshake.address.port);
+            AllClients[sock.handshake.address.address].emit('join', false);
+            for (var i = 0; i < AllClientsLength; ++i) {
+                if (boards[i].ip == sock.handshake.address.address) {
+                    boards[i].id = data.id;
+                    break;
+                }
+            }
+            AllClients[sock.handshake.address.address] = sock;
             sock.emit('join', true);
         }
         // new client
         else {
             if (AllClientsLength < 4) {
-                console.log("[join] new user with id '" + data.id + "'");
-                AllClients[data.id] = sock;
+                console.log("[join] new user with id '" + data.id + "' and IP " + sock.handshake.address.address + ":" + sock.handshake.address.port);
+                AllClients[sock.handshake.address.address] = sock;
                 var color;
                 switch (AllClientsLength) {
                     case 0: {
@@ -71,6 +78,7 @@ io.sockets.on('connection', function (sock) {
                     }
                 }
                 boards.push({
+                    ip:       sock.handshake.address.address,
                     id:       data.id,
                     position: gameRegionSize / 2,
                     size:     40,
@@ -94,7 +102,7 @@ io.sockets.on('connection', function (sock) {
                 }
             }
             else {
-                console.log("[join] server is full, user id '" + data.id + "'");
+                console.log("[join] server is full, user id '" + data.id + "' and IP " + sock.handshake.address.address + ":" + sock.handshake.address.port);
                 sock.emit('join', false);
             }
         }
@@ -102,7 +110,7 @@ io.sockets.on('connection', function (sock) {
 
     // a client sends data to server (not in use)
     sock.on('data', function (data) {
-        if(AllClients[data.id] !== null) {
+        if(AllClients[sock.handshake.address.address] !== null) {
             DataReceivedFromClient(data.msg);
         }
     });
