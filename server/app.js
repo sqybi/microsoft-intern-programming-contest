@@ -22,10 +22,10 @@ var AllClientsLength = 0;
 var gameRegionSize      = 600;                  // the side length of game region, NEVER change it
 var gameRegionGapSize   = 10;                   // size of the gap between game region and canvas (to place the boards), NEVER change it
 var ballInitialPosition = gameRegionSize / 2.0; // initial position of ball (both X and Y)
-var ballIsOut           = "";                // whether the ball is out of pitch or not
+var ballIsOut           = "";                   // whether the ball is out of pitch or not
 var moveBallInterval    = 10;                   // the interval to move the ball, in millisecond
-var moveBallSpeed       = 1;                    // the pixel of movement during the interval
-var moveBallSpeedLimit  = 50;                   // moveBallSpeed is always less than or equal to this value
+var moveBallSpeed       = 2;                    // the pixel of movement during the interval
+var moveBallSpeedLimit  = 10;                   // moveBallSpeed is always less than or equal to this value
 var moveBallIntervarHandler;
 var increaseMoveBallSpeedHandler;
 
@@ -87,8 +87,10 @@ io.sockets.on('connection', function (sock) {
                     console.log("[start] game starts!");
 
                     // start to move ball
-                    moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
-                    increaseMoveBallSpeedHandler = setInterval(IncreaseMoveBallSpeed, 30000);
+                    setTimeout(function () {
+                        moveBallIntervalHandler = setInterval(MoveBall, moveBallInterval);
+                    }, 3000);
+                    increaseMoveBallSpeedHandler = setInterval(IncreaseMoveBallSpeed, 20000);
                 }
             }
             else {
@@ -436,6 +438,11 @@ function MoveBall() {
             ballIsOut = "";
             moveBallInterval = 10;
             moveBallSpeed = 1;
+            ball = {
+                x: gameRegionSize / 2.0,
+                y: gameRegionSize / 2.0,
+                angle: RandomAngle()
+            }
         }
     }
 }
