@@ -1,0 +1,74 @@
+<p><link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link></p>
+
+<h1>Marble^4</h1>
+
+<h2>Game description</h2>
+
+<h3>Introduction</h3>
+
+<p><strong>Marble^4</strong> is an HTML5 game with Node.js server. It seems like one of the earliest arcade video games <a href="http://en.wikipedia.org/wiki/Pong"><em>Pong</em></a> which is designed by Atari Inc. in 1972. However, this is the 4-player version of the <em>Pong</em> game. <br />
+<img src="./image/splash.png" alt="Splash screen" title="" width="600" /></p>
+
+<h3>Basic rules</h3>
+
+<p>In this game, everyone has 3 lives, and has a board on one side of the square game area, like this picture: <br />
+<img src="./image/start.png" alt="Game start" title="" width="600" /> <br />
+When the marble reaches one's border and this player doesn't catch the marble with his board, he will lose one life. <br />
+<img src="./image/othersloselife.png" alt="Someone lose a life" title="" width="600" /> <br />
+As someone lose all his lives, he will be dead and cannot control his board any more. <br />
+<img src="./image/othersdie.png" alt="Someone is dead" title="" width="600" /></p>
+
+<h3>Game control</h3>
+
+<p>The board on the below side is yours, and you could control the board by moving your mouse.  </p>
+
+<blockquote>
+  <p>Note that the reflection angle is only related to the touch point when the marble reach your board.</p>
+</blockquote>
+
+<h3>Goal</h3>
+
+<p>Your goal is to kill all other players and be alive until the end! <br />
+<img src="./image/win.png" alt="You win" title="" width="600" /></p>
+
+<h3>Join a game</h3>
+
+<p>Visit the server IP and port in your browser. When the text below disappear, please wait patiently. <br />
+<img src="./image/waiting.png" alt="Waiting" title="" width="600" /></p>
+
+<p>Learn more in "How to construct a server" section.</p>
+
+<h2>Advanced tips</h2>
+
+<ul>
+<li>Reflection rule: If the marble hits an endpoint of a board, the reflection angle will be 45°. Otherwise, the reflection angle will be always less than 45°. Specially, when the marble hits the center of board, it will reflect vertically.</li>
+<li>When someone is dead, his board will become a "wall", which will fill his border have a mirror reflection effect instead of the previous reflection rule.</li>
+<li>The game will have a 3-second pause when game starts or someone is dead.</li>
+<li>The server is only able to support 4 clients at a time. If you get the "server is full" message, please refresh the webpage after a while.</li>
+<li>When you just finished a game, you could refresh your browser to rejoin the server. There is no need to restart server.</li>
+</ul>
+
+<h2>How to build a server</h2>
+
+<h3>Set your IP address</h3>
+
+<p>You should modify the first line of client.js: <br />
+<code>var serverURL         = 'http://localhost';   // URL of server</code> <br />
+Set your IP address here instead of "localhost". Port is not necessary.</p>
+
+<h3>Run the server</h3>
+
+<p>Use <code>start_server.bat</code> to run the server.</p>
+
+<h3>Run a client</h3>
+
+<p>Just visit the IP address of the server with port 8080!  </p>
+
+<blockquote>
+  <p><em>Internet Explorer</em> is <strong>NOT</strong> supported! And <em>Firefox</em> is <strong>NOT</strong> tested yet. We strongly recommend the <em>Chrome</em> browser.
+What's more, it's also recommended to read this <em>readme</em> page in <em>Chrome</em>, while <em>Internet Explorer</em> could not parse the css file correctly.</p>
+</blockquote>
+
+<h2>Copyright Announcement</h2>
+
+<p>The splash screen from this <a href="http://www.flickr.com/photos/oter/4730719419/in/photostream/">original link</a> by <a href="http://www.flickr.com/photos/oter/">Jo Christian Oterhals</a>. It's published with <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/">CC BY-NC-ND 2.0</a>.</p>
