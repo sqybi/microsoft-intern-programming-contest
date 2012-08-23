@@ -86,19 +86,6 @@ io.sockets.on('connection', function (sock) {
                     color:    color,
                     hits:     0
                 });
-                
-                /* debug */
-                for (var i = 0; i != 3; ++i)
-                boards.push({
-                    ip:       "",
-                    id:       "",
-                    position: gameRegionSize / 2,
-                    size:     40,
-                    life:     3,
-                    color:    "green",
-                    hits:     0
-                });
-                AllClientsLength = 3;
 
                 sock.emit('join', true);
                 AllClientsLength++;

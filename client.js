@@ -488,6 +488,10 @@ socket.on('join', function (data) {
 socket.on('start', function (data) {
     if (gameStatus == 0) {
         gameStatus = 1;
+        loseLifeTip = "Game start!";
+        setTimeout(function () {
+            loseLifeTip = "";
+        }, 2000);
     }
 });
 
