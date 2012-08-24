@@ -25,7 +25,7 @@ Your goal is to kill all other players and be alive until the end!
 <img src="./image/win.png" alt="You win" title="" width="600" />
 
 ### Join a game
-Visit the server IP and port in your browser. When the text below disappear, please wait patiently.  
+Visit the server IP and port in your browser. Since the game will start iff there are **exactly 4 players**, so when the tip "Waiting for other participants" appears, please wait patiently.  
 <img src="./image/waiting.png" alt="Waiting" title="" width="600" />
 
 Learn more in "How to construct a server" section.
