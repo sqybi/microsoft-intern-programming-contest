@@ -26,9 +26,9 @@ var gameRegionSize      = 600;                  // the side length of game regio
 var gameRegionGapSize   = 10;                   // size of the gap between game region and canvas (to place the boards), NEVER change it
 var ballInitialPosition = gameRegionSize / 2.0; // initial position of ball (both X and Y)
 var ballIsOut           = "";                   // whether the ball is out of pitch or not
-var moveBallInterval    = 10;                   // the interval to move the ball, in millisecond
-var moveBallSpeed       = 2;                    // the pixel of movement during the interval
-var moveBallSpeedLimit  = 10;                   // moveBallSpeed is always less than or equal to this value
+var moveBallInterval    = 5;                    // the interval to move the ball, in millisecond
+var moveBallSpeed       = 1;                    // the pixel of movement during the interval
+var moveBallSpeedLimit  = 5;                    // moveBallSpeed is always less than or equal to this value
 var moveBallIntervarHandler;
 var increaseMoveBallSpeedHandler;
 
