@@ -4,10 +4,13 @@ var app = express();
 
 // requesting some page
 app.get('/', function(rq, rs) {
-    rs.redirect('/index.html');
+    rs.redirect('/index.htm');
 });
 app.get('/:file', function(rq, rs) {
     rs.sendfile(rq.params.file);
+});
+app.get('/image/:file', function(rq, rs) {
+    rs.sendfile("image/" + rq.params.file);
 });
 
 // start server
@@ -52,6 +55,7 @@ io.sockets.on('connection', function (sock) {
             }
             AllClients[sock.handshake.address.address] = sock;
             sock.emit('join', true);
+            BroadcastAllClients('wait', 4 - AllClientsLength);
         }
         // new client
         else {
