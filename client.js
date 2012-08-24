@@ -22,6 +22,7 @@ var gameStatus = -2;
 
 var prevLife = [];
 var loseLifeTip = "";
+var waitForPlayersNumber = 4;
 
 var ball = {
     x: gameRegionSize / 2,
@@ -385,7 +386,7 @@ var RenderingLoop = function() {
             backgroundCtx.textAlign = "center";
             backgroundCtx.fillStyle = "black";
             backgroundCtx.font = "30px Arial";
-            backgroundCtx.fillText("Waiting for other participants...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
+            backgroundCtx.fillText("Waiting for other " + waitForPlayersNumber + " participants...", gameRegionGapSize + gameRegionSize / 2 + 2, gameRegionGapSize + gameRegionSize / 2 + 2);
             DrawInfoArea(backgroundCtx);
 
             break;
@@ -485,13 +486,18 @@ socket.on('join', function (data) {
     }
 });
 
-socket.on('start', function (data) {
-    if (gameStatus == 0) {
-        gameStatus = 1;
-        loseLifeTip = "Game start!";
-        setTimeout(function () {
-            loseLifeTip = "";
-        }, 2000);
+socket.on('wait', function (data) {
+    if (data > 0) {
+        waitForPlayersNumber = data;
+    }
+    else {
+        if (gameStatus == 0) {
+            gameStatus = 1;
+            loseLifeTip = "Game start!";
+            setTimeout(function () {
+                loseLifeTip = "";
+            }, 2000);
+        }
     }
 });
 

@@ -89,9 +89,10 @@ io.sockets.on('connection', function (sock) {
 
                 sock.emit('join', true);
                 AllClientsLength++;
+
+                BroadcastAllClients('wait', 4 - AllClientsLength);
                 if (AllClientsLength == 4) {
                     // tell all the clients about game starts
-                    BroadcastAllClients('start', null);
                     BroadcastAllClientsCurrentBoard();
                     console.log("[start] game starts!");
 
